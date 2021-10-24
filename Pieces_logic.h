@@ -209,7 +209,7 @@ public:
     }
     void get_moves(int r,int c,const board& b){
         char t = b.board_matrix[cor[0]][cor[1]][1];
-        if(t=='w'){
+        if(t=='b'){
             if(cor[0]==1){      //starting rank 2 square jump for pawns
                 if(b.board_matrix[3][cor[1]] == "LI"){
                     move_list.push_back(3); move_list.push_back(cor[1]);
@@ -218,26 +218,26 @@ public:
             if(b.board_matrix[cor[0]+1][cor[1]]=="LI"){     //moving pawn one square forward
                 move_list.push_back(cor[0]+1); move_list.push_back(cor[1]);
             }
-            if(b.board_matrix[cor[0]+1][cor[1]+1][1]=='b'){
+            if(b.board_matrix[cor[0]+1][cor[1]+1][1]=='w'){
                 move_list.push_back(cor[0]+1); move_list.push_back(cor[1]+1);
             }
-            if(b.board_matrix[cor[0]+1][cor[1]-1][1]=='b'){
+            if(b.board_matrix[cor[0]+1][cor[1]-1][1]=='w'){
                 move_list.push_back(cor[0]+1); move_list.push_back(cor[1]-1);
             }
             if(cor[0]==4){      //!!!EN PASSANT
-                if(b.board_matrix[cor[0]][cor[1]-1]=="Pb"){
+                if(b.board_matrix[cor[0]][cor[1]-1]=="Pw"){
                     if(moves[moves.size()-2]==4 && moves[moves.size()-1]==cor[1]-1){
                         move_list.push_back(cor[0]+1); move_list.push_back(cor[1]-1);
                     }
                 }
-                if(b.board_matrix[cor[0]][cor[1]+1]=="Pb"){
+                if(b.board_matrix[cor[0]][cor[1]+1]=="Pw"){
                     if(moves[moves.size()-2]==5 && moves[moves.size()-1]==cor[1]+1){
                         move_list.push_back(cor[0]+1); move_list.push_back(cor[1]+1);
                     }
                 }
             }
         }
-        if(t=='b') {
+        if(t=='w') {
             if (cor[0] == 6) {
                 if (b.board_matrix[4][cor[1]] == "LI") {
                     move_list.push_back(4);
@@ -248,22 +248,22 @@ public:
                 move_list.push_back(cor[0] - 1);
                 move_list.push_back(cor[1]);
             }
-            if (b.board_matrix[cor[0] - 1][cor[1] + 1][1] == 'w') {
+            if (b.board_matrix[cor[0] - 1][cor[1] + 1][1] == 'b') {
                 move_list.push_back(cor[0] - 1);
                 move_list.push_back(cor[1] + 1);
             }
-            if (b.board_matrix[cor[0] - 1][cor[1] - 1][1] == 'w') {
+            if (b.board_matrix[cor[0] - 1][cor[1] - 1][1] == 'b') {
                 move_list.push_back(cor[0] - 1);
                 move_list.push_back(cor[1] - 1);
             }
             if (cor[0] == 3) {
-                if (b.board_matrix[cor[0]][cor[1] - 1] == "Pw") {
+                if (b.board_matrix[cor[0]][cor[1] - 1] == "Pb") {
                     if (moves[moves.size() - 2] == 5 && moves[moves.size() - 1] == cor[1] - 1) {
                         move_list.push_back(cor[0] - 1);
                         move_list.push_back(cor[1] - 1);
                     }
                 }
-                if (b.board_matrix[cor[0]][cor[1] + 1] == "Pw") {
+                if (b.board_matrix[cor[0]][cor[1] + 1] == "Pb") {
                     if (moves[moves.size() - 2] == 5 && moves[moves.size() - 1] == cor[1] + 1) {
                         move_list.push_back(cor[0] - 1);
                         move_list.push_back(cor[1] + 1);

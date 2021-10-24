@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
@@ -73,28 +74,28 @@ void constructor_board(board& b){
         }
     }
     //white pieces setup
-    b.board_matrix[0][0] = "Rw";
-    b.board_matrix[0][1] = "Nw";
-    b.board_matrix[0][2] = "Bw";
-    b.board_matrix[0][3] = "Kw";
-    b.board_matrix[0][4] = "Qw";
-    b.board_matrix[0][5] = "Bw";
-    b.board_matrix[0][6] = "Nw";
-    b.board_matrix[0][7] = "Rw";
+    b.board_matrix[0][0] = "Rb";
+    b.board_matrix[0][1] = "Nb";
+    b.board_matrix[0][2] = "Bb";
+    b.board_matrix[0][3] = "Qb";
+    b.board_matrix[0][4] = "Kb";
+    b.board_matrix[0][5] = "Bb";
+    b.board_matrix[0][6] = "Nb";
+    b.board_matrix[0][7] = "Rb";
     for(int i = 0;i<col_size;i++){
-        b.board_matrix[1][i] = "Pw";
+        b.board_matrix[1][i] = "Pb";
     }
     //black pieces setup
-    b.board_matrix[7][0] = "Rb";
-    b.board_matrix[7][1] = "Nb";
-    b.board_matrix[7][2] = "Bb";
-    b.board_matrix[7][3] = "Kb";
-    b.board_matrix[7][4] = "Qb";
-    b.board_matrix[7][5] = "Bb";
-    b.board_matrix[7][6] = "Nb";
-    b.board_matrix[7][7] = "Rb";
+    b.board_matrix[7][0] = "Rw";
+    b.board_matrix[7][1] = "Nw";
+    b.board_matrix[7][2] = "Bw";
+    b.board_matrix[7][3] = "Qw";
+    b.board_matrix[7][4] = "Kw";
+    b.board_matrix[7][5] = "Bw";
+    b.board_matrix[7][6] = "Nw";
+    b.board_matrix[7][7] = "Rw";
     for(int i = 0;i<col_size;i++){
-        b.board_matrix[6][i] = "Pb";
+        b.board_matrix[6][i] = "Pw";
     }
 }
 
@@ -103,7 +104,7 @@ void get_square(const board& b){
         cout<<"Enter selection square: "<<endl;
         char inp[3];
         cin>>inp;
-        cor[1] = inp[0]-97; cor[0] = inp[1] - 49;
+        cor[1] = inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
         char t = (b.turn)? 'b':'w';
         vector<int> temp_move_list;     //this list checks whether the selected piece has any valid moves
         switch(b.board_matrix[cor[0]][cor[1]][0]){
@@ -197,7 +198,7 @@ void make_move(board& b){
         }
         int count = 0;
         for(int i = 0;i<temp_move_list.size();i++){
-            if(inp[1]-49 == temp_move_list[i]&&inp[0]-97==temp_move_list[i+1]){
+            if(fabs(inp[1]-49-7) == temp_move_list[i]&&inp[0]-97==temp_move_list[i+1]){
                 count++;
             }
             i++;
@@ -209,7 +210,7 @@ void make_move(board& b){
         print_moves(temp_move_list);
     }
     des[1] = inp[0] - 97;
-    des[0] = inp[1] - 49;
+    des[0] = fabs(inp[1] - 49-7);
     b.board_matrix[des[0]][des[1]] = b.board_matrix[cor[0]][cor[1]]; b.board_matrix[cor[0]][cor[1]] = "LI";
     moves.push_back(cor[0]); moves.push_back(cor[1]); moves.push_back(des[0]); moves.push_back(des[1]);
     b.turn = (b.turn) ? 0 : 1;
@@ -222,7 +223,7 @@ void print_moves(vector<int> x){
     int loop_var = 0;
     while(loop_var<x.size()){
         file = static_cast<char>(x[loop_var+1]+97);
-        rank = x[loop_var] + 1;
+        rank = fabs(x[loop_var] -8);
         cout<<file<<rank<<" ";
         loop_var+=2;
     }
@@ -232,7 +233,7 @@ void print_moves(vector<int> x){
 void print_all_game_moves(){
     int loop_var = 0;
     while(loop_var<moves.size()){
-        printf("%c%d to %c%d\n", moves[loop_var+1]+97,moves[loop_var]+1,moves[loop_var+3]+97,moves[loop_var+2]+1);
+        printf("%c%d to %c%d\n", moves[loop_var+1]+97,fabs(moves[loop_var]-8),moves[loop_var+3]+97,fabs(moves[loop_var+2]-8));  //-8 to fix the lateral inversion of alphabetic notation on the board
         loop_var+=4;
     }
 }
