@@ -1,4 +1,4 @@
-inline void display_board(const board& b){
+void display_board(const board& b){
     cout<<"Board: "<<endl;
     cout<<"\tWhite End"<<endl;
     for(auto& i: b.board_matrix){
@@ -12,14 +12,14 @@ inline void display_board(const board& b){
     cout<<"Turn of :"<<t<<endl;
 }
 
-inline void constructor_board(board& b){
+void constructor_board(board& b){
     //initializing blank board
     for(int i = 0;i< row_size;i++){
         for(int j = 0;j<col_size;j++){
             b.board_matrix[i][j] = "LI";
         }
     }
-    //white pieces setup
+    //black pieces setup
     b.board_matrix[0][0] = "Rb";
     b.board_matrix[0][1] = "Nb";
     b.board_matrix[0][2] = "Bb";
@@ -31,7 +31,7 @@ inline void constructor_board(board& b){
     for(int i = 0;i<col_size;i++){
         b.board_matrix[1][i] = "Pb";
     }
-    //black pieces setup
+    //white pieces setup
     b.board_matrix[7][0] = "Rw";
     b.board_matrix[7][1] = "Nw";
     b.board_matrix[7][2] = "Bw";
@@ -45,12 +45,12 @@ inline void constructor_board(board& b){
     }
 }
 
-inline void get_square(const board& b){
+void get_square(const board& b){
     do{
         cout<<"Enter selection square: "<<endl;
         char inp[3];
         cin>>inp;
-        cor[1] = inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
+        cor[1] = (int)inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
         char t = (b.turn)? 'b':'w';
         vector<int> temp_move_list;     //this list checks whether the selected piece has any valid moves
         switch(b.board_matrix[cor[0]][cor[1]][0]){
@@ -98,7 +98,7 @@ inline void get_square(const board& b){
     while(cin);
 }
 
-inline bool is_valid(int row,int col,const board& b){
+bool is_valid(int row,int col,const board& b){
     if(!(row>=0 && row<row_size &&col>=0 && col<col_size)){
         return false;
     }
@@ -109,10 +109,12 @@ inline bool is_valid(int row,int col,const board& b){
     return true;
 }
 
-inline void make_move(board& b){
+void make_move(board& b){
     cout<<"Enter destination square"<<endl;
     char inp[3];
+    bool king;
     while(cin) {
+        king = 0;
         cin >> inp;
         vector<int> temp_move_list;
         switch(b.board_matrix[cor[0]][cor[1]][0]){
@@ -141,6 +143,13 @@ inline void make_move(board& b){
                 U_P.get_moves(cor[0],cor[1],b);
                 temp_move_list = U_P.move_list;
                 break;}
+                case 'K' : {
+                    King U_P;
+                    U_P.get_moves(cor[0],cor[1],b);
+                    temp_move_list = U_P.move_list;
+                    king = 1;
+                    break;
+                }
         }
         int count = 0;
         for(int i = 0;i<temp_move_list.size();i++){
@@ -157,6 +166,15 @@ inline void make_move(board& b){
     }
     des[1] = inp[0] - 97;
     des[0] = fabs(inp[1] - 49-7);
+    if(king) {
+        if (b.turn) {
+            b_k_pos[0] = des[0];
+            b_k_pos[1] = des[1];
+        } else {
+            w_k_pos[0] = des[0];
+            w_k_pos[1] = des[1];
+        }
+    }
     b.board_matrix[des[0]][des[1]] = b.board_matrix[cor[0]][cor[1]]; b.board_matrix[cor[0]][cor[1]] = "LI";
     moves.push_back(cor[0]); moves.push_back(cor[1]); moves.push_back(des[0]); moves.push_back(des[1]);
     b.turn = (b.turn) ? 0 : 1;
@@ -176,7 +194,7 @@ inline void make_move(board& b){
     cout<<endl;
 }
 
-inline void print_all_game_moves(){
+void print_all_game_moves(){
     int loop_var = 0;
     while(loop_var<moves.size()){
         printf("%c%d to %c%d\n", moves[loop_var+1]+97,(int)fabs(moves[loop_var]-8),moves[loop_var+3]+97,(int)fabs(moves[loop_var+2]-8));  //-8 to fix the lateral inversion of alphabetic notation on the board
@@ -184,7 +202,7 @@ inline void print_all_game_moves(){
     }
 }
 
-inline bool in_check(const int r,const int c,const board& b){
+bool in_check(const int r,const int c,const board& b){
     char turn_opp = (b.turn)? 'w':'b';      //gives the opposite piece
     int adder = 1;
     //checking for bishop and queen
@@ -223,7 +241,7 @@ inline bool in_check(const int r,const int c,const board& b){
             return true;
         }
     }
-    //checking for Rook
+    //checking for Rook&Queen
     adder = 1;
     while(b.board_matrix[r][c+adder]=="LI"){
         adder++;

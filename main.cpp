@@ -11,6 +11,9 @@ using namespace std;
 //CONSTANT VARIABLES
 const int row_size = 8, col_size = 8;
 
+//KING TRACKER
+int w_k_pos[2] = {7,4},b_k_pos[2] = {0,4};  //format -> {row,column} / {file,rank}
+
 //COORDINATE OF CURRENT SQUARE & DESTINATION SQUARE
 int cor[2] = {0},des[2] = {0};  //format for cor -> (row,col) same for des
 
@@ -42,11 +45,26 @@ vector <int> moves;      //TO BE PRINTED AT THE END OF THE GAME
 int main() {
     board b;
     constructor_board(b);
-    while(cin){
-        display_board(b);
-        get_square(b);
-        make_move(b);
-        print_all_game_moves();
+    int curr_king[2];
+    while (cin) {
+        if (b.turn) {
+            curr_king[0] = b_k_pos[0];
+            curr_king[1] = w_k_pos[1];
+        }
+        else {
+            curr_king[0] = w_k_pos[0];
+            curr_king[1] = w_k_pos[1];
+        }
+        if(!in_check(curr_king[0],curr_king[1],b)){
+            display_board(b);
+            get_square(b);
+            make_move(b);
+            print_all_game_moves();
+        }
+        else{
+            cout<<"King in check"<<endl;
+            break;
+        }
     }
     return 0;
 }

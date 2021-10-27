@@ -103,7 +103,7 @@ public:
         }
         curr_r=r;
         for(int i = c+1; is_valid(curr_r-1,i,b);i++){
-            move_list.push_back(curr_r+1);
+            move_list.push_back(curr_r-1);
             move_list.push_back(i);
             if(b.board_matrix[curr_r-1][i][1]==t){
                 break;
@@ -112,7 +112,7 @@ public:
         }
         curr_r=r;
         for(int i = c-1; is_valid(curr_r-1,i,b);i--){
-            move_list.push_back(curr_r+1);
+            move_list.push_back(curr_r-1);
             move_list.push_back(i);
             if(b.board_matrix[curr_r-1][i][1]==t){
                 break;
@@ -181,7 +181,7 @@ public:
     }
     curr_r=r;
     for(int i = c+1; is_valid(curr_r-1,i,b);i++){
-        move_list.push_back(curr_r+1);
+        move_list.push_back(curr_r-1);
         move_list.push_back(i);
         if(b.board_matrix[curr_r-1][i][1]==t){
             break;
@@ -190,7 +190,7 @@ public:
     }
     curr_r=r;
     for(int i = c-1; is_valid(curr_r-1,i,b);i--){
-        move_list.push_back(curr_r+1);
+        move_list.push_back(curr_r-1);
         move_list.push_back(i);
         if(b.board_matrix[curr_r-1][i][1]==t){
             break;
