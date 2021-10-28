@@ -45,7 +45,7 @@ vector <int> moves;      //TO BE PRINTED AT THE END OF THE GAME
 int main() {
     board b;
     constructor_board(b);
-    int curr_king[2];
+    int curr_king[2] = {0,0};
     while (cin) {
         if (b.turn) {
             curr_king[0] = b_k_pos[0];
@@ -128,5 +128,5 @@ int main() {
  * Function Name: in_check
  * parameters: row,columns integers and board class object
  * return : boolean value regarding whether the coordinate square (row,column) is in check
- * description: determines whether a square on board matrix will be in check from the enemy pieces
+ * description: determines whether the passed square on board matrix will be in check from the enemy pieces
  */
