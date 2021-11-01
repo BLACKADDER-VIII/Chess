@@ -48,7 +48,7 @@ int main() {
     while (cin) {
         if (b.turn) {
             curr_king[0] = b_k_pos[0];
-            curr_king[1] = w_k_pos[1];
+            curr_king[1] = b_k_pos[1];
         }
         else {
             curr_king[0] = w_k_pos[0];

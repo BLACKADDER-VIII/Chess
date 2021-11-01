@@ -159,14 +159,14 @@ void make_move(board& b){
             i++;
         }
         if(count){
-            break;
+            break;      //breaks the while loop
         }
         cout<<"Invalid Square, select square from valid moves list"<<endl;
         print_moves(temp_move_list);
     }
     des[1] = inp[0] - 97;
     des[0] = fabs(inp[1] - 49-7);
-    if(king) {
+    if(king) {              //updating king position
         if (b.turn) {
             b_k_pos[0] = des[0];
             b_k_pos[1] = des[1];
