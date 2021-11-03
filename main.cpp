@@ -13,6 +13,9 @@ const int row_size = 8, col_size = 8;
 //KING TRACKER
 int w_k_pos[2] = {7,4},b_k_pos[2] = {0,4};  //format -> {row,column} / {file,rank}
 
+//checking piece coordinates
+vector<int> checker;
+
 //COORDINATE OF CURRENT SQUARE & DESTINATION SQUARE
 int cor[2] = {0},des[2] = {0};  //format for cor -> (row,col) same for des
 
@@ -32,6 +35,8 @@ inline void make_move(board& b);
 inline void print_moves(vector<int> x);
 inline void print_all_game_moves();
 inline bool in_check(int r,int c,const board& b);
+inline bool checker_capturable(vector<int> copy,const board& b);
+inline bool is_pinned(int row,int col,board b);
 
 //Moves Database
 vector <int> moves;      //TO BE PRINTED AT THE END OF THE GAME
@@ -54,15 +59,38 @@ int main() {
             curr_king[0] = w_k_pos[0];
             curr_king[1] = w_k_pos[1];
         }
+        display_board(b);
         if(!in_check(curr_king[0],curr_king[1],b)){
-            display_board(b);
             get_square(b);
             make_move(b);
             print_all_game_moves();
         }
         else{
-            cout<<"King in check"<<endl;
-            break;
+            checker.clear();
+            in_check(curr_king[0],curr_king[1],b);
+            vector<int> copy = checker;
+            checker.clear();        //clear the vector so the next use will add the checker capturers to the list
+            King k;
+            k.get_moves(curr_king[0],curr_king[1],b);       //FIXME ADD INTERCEPT CONDITION AND ADJUST CURR_CHECKER TO VECTOR FORM
+            if(k.move_list.size()==0 && checker_capturable(copy,b) == 0){
+                cout<<"Checkmate"<<endl;
+                return 0;
+            }
+            else if(k.move_list.size()==0 && copy.size()>2){       //intercept and capture only work when there's a single attacker
+                cout<<"Checkmate"<<endl;
+                return 0;
+            }
+            vector<int>copy2 = checker;     //to find the pieces that can capture the checker
+            vector<int>elig_squares ;       //A list of all the squares that can capture the checker
+            for(int i = 0;i<copy2.size();i++){
+                elig_squares.push_back(copy2[i]);elig_squares.push_back(copy2[i+1]);
+                i++;
+            }
+            get_square(b);
+            while(b.board_matrix[cor[0]][cor[1]][0] != 'K'){        //FIXME!!! ADD INTERCEPT PIECES AND CAPTURE PIECES TOO
+                cout<<"King is in check! Invalid square"<<endl;
+                get_square(b);
+            }
         }
     }
     return 0;

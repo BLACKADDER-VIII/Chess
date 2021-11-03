@@ -51,6 +51,10 @@ void get_square(const board& b){
         char inp[3];
         cin>>inp;
         cor[1] = (int)inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
+        if(is_pinned(cor[0],cor[1],b)){
+            cout<<"Piece is pinned"<<endl;
+            continue;
+        }
         char t = (b.turn)? 'b':'w';
         vector<int> temp_move_list;     //this list checks whether the selected piece has any valid moves
         switch(b.board_matrix[cor[0]][cor[1]][0]){
@@ -211,6 +215,7 @@ bool in_check(const int r,const int c,const board& b){
     }
     if(is_valid(r+adder,c+adder,b)){
         if((b.board_matrix[r+adder][c+adder][0] == 'B' || b.board_matrix[r+adder][c+adder][0] == 'Q')&&b.board_matrix[r+adder][c+adder][1]==turn_opp){
+            checker.push_back(r+adder);checker.push_back(c+adder);     //updates checker
             return true;
         }
     }
@@ -220,6 +225,7 @@ bool in_check(const int r,const int c,const board& b){
     }
     if(is_valid(r+adder,c-adder,b)){
         if((b.board_matrix[r+adder][c-adder][0] == 'B' || b.board_matrix[r+adder][c-adder][0] == 'Q')&&b.board_matrix[r+adder][c-adder][1]==turn_opp){
+            checker.push_back(r+adder);checker.push_back(c-adder);
             return true;
         }
     }
@@ -229,6 +235,7 @@ bool in_check(const int r,const int c,const board& b){
     }
     if(is_valid(r-adder,c+adder,b)){
         if((b.board_matrix[r-adder][c+adder][0] == 'B' || b.board_matrix[r-adder][c+adder][0] == 'Q')&&b.board_matrix[r-adder][c+adder][1]==turn_opp){
+            checker.push_back(r-adder);checker.push_back(c+adder);
             return true;
         }
     }
@@ -238,6 +245,7 @@ bool in_check(const int r,const int c,const board& b){
     }
     if(is_valid(r-adder,c-adder,b)){
         if((b.board_matrix[r-adder][c-adder][0] == 'B' || b.board_matrix[r-adder][c-adder][0] == 'Q')&&b.board_matrix[r-adder][c-adder][1]==turn_opp){
+            checker.push_back(r-adder);checker.push_back(c-adder);
             return true;
         }
     }
@@ -248,6 +256,7 @@ bool in_check(const int r,const int c,const board& b){
     }
     if(is_valid(r,c+adder,b)){
         if((b.board_matrix[r][c+adder][0] == 'R' || b.board_matrix[r][c+adder][0] == 'Q')&&b.board_matrix[r][c+adder][1]==turn_opp){
+            checker.push_back(r);checker.push_back(c+adder);
             return true;
         }
     }
@@ -257,6 +266,7 @@ bool in_check(const int r,const int c,const board& b){
     }
     if(is_valid(r,c-adder,b)){
         if((b.board_matrix[r][c-adder][0] == 'R' || b.board_matrix[r][c-adder][0] == 'Q')&&b.board_matrix[r][c-adder][1]==turn_opp){
+            checker.push_back(r);checker.push_back(c-adder);
             return true;
         }
     }
@@ -266,6 +276,7 @@ bool in_check(const int r,const int c,const board& b){
     }
     if(is_valid(r+adder,c,b)){
         if((b.board_matrix[r+adder][c][0] == 'R' || b.board_matrix[r+adder][c][0] == 'Q')&&b.board_matrix[r+adder][c][1]==turn_opp){
+            checker.push_back(r+adder);checker.push_back(c);
             return true;
         }
     }
@@ -275,51 +286,82 @@ bool in_check(const int r,const int c,const board& b){
     }
     if(is_valid(r-adder,c,b)){
         if((b.board_matrix[r-adder][c][0] == 'R' || b.board_matrix[r-adder][c][0] == 'Q')&&b.board_matrix[r-adder][c][1]==turn_opp){
+            checker.push_back(r-adder);checker.push_back(c);
             return true;
         }
     }
     //checking for knight
     if(is_valid(r+2,c+1,b)){
         if((b.board_matrix[r+2][c+1][0] == 'N')&&b.board_matrix[r+2][c+1][1]==turn_opp){
+            checker.push_back(r+2);checker.push_back(c+1);
             return true;
         }
     }
     if(is_valid(r+2,c-1,b)){
         if((b.board_matrix[r+2][c-1][0] == 'N')&&b.board_matrix[r+2][c-1][1]==turn_opp){
+            checker.push_back(r+2);checker.push_back(c-1);
             return true;
         }
     }
     if(is_valid(r-2,c+1,b)){
         if((b.board_matrix[r-2][c+1][0] == 'N')&&b.board_matrix[r-2][c+1][1]==turn_opp){
+            checker.push_back(r-2);checker.push_back(c+1);
             return true;
         }
     }
     if(is_valid(r-2,c-1,b)){
         if((b.board_matrix[r-2][c-1][0] == 'N')&&b.board_matrix[r-2][c-1][1]==turn_opp){
+            checker.push_back(r-2);checker.push_back(c-1);
             return true;
         }
     }
     if(is_valid(r+1,c+2,b)){
         if((b.board_matrix[r+1][c+2][0] == 'N')&&b.board_matrix[r+1][c+2][1]==turn_opp){
+            checker.push_back(r+1);checker.push_back(c+2);
             return true;
         }
     }
     if(is_valid(r-1,c+2,b)){
         if((b.board_matrix[r-1][c+2][0] == 'N')&&b.board_matrix[r-1][c+2][1]==turn_opp){
+            checker.push_back(r-1);checker.push_back(c+2);
             return true;
         }
     }
     if(is_valid(r+1,c-2,b)){
         if((b.board_matrix[r+1][c-2][0] == 'N')&&b.board_matrix[r+1][c-2][1]==turn_opp){
+            checker.push_back(r+1);checker.push_back(c-2);
             return true;
         }
     }
     if(is_valid(r-1,c-2,b)){
         if((b.board_matrix[r-1][c-2][0] == 'N')&&b.board_matrix[r-1][c-2][1]==turn_opp){
+            checker.push_back(r-1);checker.push_back(c-2);
             return true;
         }
     }
-    //checking for pawns
+    //FIXME checking for pawns
 
+    return false;
+}
+
+bool checker_capturable(vector<int> copy,const board& b){
+    if(!in_check(copy[0],copy[1],b)){
+        return 0;
+    }
+    return 1;
+}
+
+bool is_pinned(int row,int col,board b){
+    b.board_matrix[row][col] = "LI";
+    int curr[2];
+    if(b.turn){
+        curr[0] = b_k_pos[0],curr[1] = b_k_pos[1];
+    }
+    else{
+        curr[0] = w_k_pos[0],curr[1] = w_k_pos[1];
+    }
+    if(in_check(curr[0],curr[1],b)){
+        return true;
+    }
     return false;
 }
