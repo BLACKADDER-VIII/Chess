@@ -1,5 +1,6 @@
 /*
  * Author: Dhroov Pandey
+ * Description: Game of chess
  */
 #include <iostream>
 #include <vector>
@@ -15,6 +16,8 @@ int w_k_pos[2] = {7,4},b_k_pos[2] = {0,4};  //format -> {row,column} / {file,ran
 
 //checking piece coordinates
 vector<int> checker;
+vector<int>interceptors;
+vector<int>elig_squares;       //A list of all the squares that can capture the checker
 
 //COORDINATE OF CURRENT SQUARE & DESTINATION SQUARE
 int cor[2] = {0},des[2] = {0};  //format for cor -> (row,col) same for des
@@ -37,6 +40,7 @@ inline void print_all_game_moves();
 inline bool in_check(int r,int c,const board& b);
 inline bool checker_capturable(vector<int> copy,const board& b);
 inline bool is_pinned(int row,int col,board b);
+inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b);
 
 //Moves Database
 vector <int> moves;      //TO BE PRINTED AT THE END OF THE GAME
@@ -72,19 +76,13 @@ int main() {
             checker.clear();        //clear the vector so the next use will add the checker capturers to the list
             King k;
             k.get_moves(curr_king[0],curr_king[1],b);       //FIXME ADD INTERCEPT CONDITION AND ADJUST CURR_CHECKER TO VECTOR FORM
-            if(k.move_list.size()==0 && checker_capturable(copy,b) == 0){
+            if(k.move_list.size()==0 && copy.size()>2){
                 cout<<"Checkmate"<<endl;
                 return 0;
             }
-            else if(k.move_list.size()==0 && copy.size()>2){       //intercept and capture only work when there's a single attacker
+            else if(k.move_list.size()==0 && checker_capturable(copy,b) == 0 && !intercept(curr_king[0],curr_king[1],copy[0],copy[1],b)){       //intercept and capture only work when there's a single attacker
                 cout<<"Checkmate"<<endl;
                 return 0;
-            }
-            vector<int>copy2 = checker;     //to find the pieces that can capture the checker
-            vector<int>elig_squares ;       //A list of all the squares that can capture the checker
-            for(int i = 0;i<copy2.size();i++){
-                elig_squares.push_back(copy2[i]);elig_squares.push_back(copy2[i+1]);
-                i++;
             }
             get_square(b);
             while(b.board_matrix[cor[0]][cor[1]][0] != 'K'){        //FIXME!!! ADD INTERCEPT PIECES AND CAPTURE PIECES TOO
