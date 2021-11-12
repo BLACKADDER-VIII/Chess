@@ -16,7 +16,7 @@ int w_k_pos[2] = {7,4},b_k_pos[2] = {0,4};  //format -> {row,column} / {file,ran
 
 //checking piece coordinates
 vector<int> checker;
-vector<int>interceptors;
+vector<int>interceptors;        //list of all squares that can intercept a check
 vector<int>elig_squares;       //A list of all the squares that can capture the checker
 
 //COORDINATE OF CURRENT SQUARE & DESTINATION SQUARE
@@ -38,7 +38,7 @@ inline void make_move(board& b);
 inline void print_moves(vector<int> x);
 inline void print_all_game_moves();
 inline bool in_check(int r,int c,const board& b);
-inline bool checker_capturable(vector<int> copy,const board& b);
+inline bool checker_capturable(vector<int> copy,board b);
 inline bool is_pinned(int row,int col,board b);
 inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b);
 
@@ -71,24 +71,50 @@ int main() {
         }
         else{
             checker.clear();
+            interceptors.clear();
+            elig_squares.clear();
             in_check(curr_king[0],curr_king[1],b);
             vector<int> copy = checker;
             checker.clear();        //clear the vector so the next use will add the checker capturers to the list
             King k;
-            k.get_moves(curr_king[0],curr_king[1],b);       //FIXME ADD INTERCEPT CONDITION AND ADJUST CURR_CHECKER TO VECTOR FORM
+            k.get_moves(curr_king[0],curr_king[1],b);
             if(k.move_list.size()==0 && copy.size()>2){
                 cout<<"Checkmate"<<endl;
                 return 0;
             }
-            else if(k.move_list.size()==0 && checker_capturable(copy,b) == 0 && !intercept(curr_king[0],curr_king[1],copy[0],copy[1],b)){       //intercept and capture only work when there's a single attacker
+            else if(k.move_list.size()==0 && checker_capturable(copy,b) == 0 && intercept(curr_king[0],curr_king[1],copy[0],copy[1],b)==0){       //intercept and capture only work when there's a single attacker
                 cout<<"Checkmate"<<endl;
+                cout<<elig_squares.size();
                 return 0;
             }
-            get_square(b);
-            while(b.board_matrix[cor[0]][cor[1]][0] != 'K'){        //FIXME!!! ADD INTERCEPT PIECES AND CAPTURE PIECES TOO
-                cout<<"King is in check! Invalid square"<<endl;
-                get_square(b);
+            vector <int> temp_move_list;
+            temp_move_list=k.move_list;
+            for(int i:elig_squares){
+                temp_move_list.push_back(i);  
             }
+            for(int i:interceptors){
+                temp_move_list.push_back(i);
+            }
+            char inp[3];
+            while(cin){
+                cout<<"King in check. Enter move"<<endl;
+                cin>>inp;
+                int count = 0;
+                for(int i = 0;i<temp_move_list.size();i++){
+                    if(fabs(inp[1]-49-7) == temp_move_list[i]&&inp[0]-97==temp_move_list[i+1]){
+                        count++;
+                    }
+                    i++;
+                }
+                if(count){
+                    break;      //breaks the while loop
+                }
+                cout<<"Invalid Square, select square from valid moves list"<<endl;
+                print_moves(temp_move_list);
+            }
+            cor[1] = (int)inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
+            make_move(b);       //FIX ME!!! ADD FUNC TO ONLY ALLOW MOVES THAT CAN ESCAPE FROM CHECK
+
         }
     }
     return 0;
