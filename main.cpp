@@ -6,6 +6,8 @@
 #include <vector>
 #include <cmath>
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 using namespace std;
 
 //CONSTANT VARIABLES
@@ -22,6 +24,10 @@ vector<int>elig_squares;       //A list of all the squares that can capture the 
 //COORDINATE OF CURRENT SQUARE & DESTINATION SQUARE
 int cor[2] = {0},des[2] = {0};  //format for cor -> (row,col) same for des
 
+//IF A PINNED PIECE IS SELECTED
+bool pin_sel = 0;       //If the piece is selected, (used by make_move func)
+vector<int> pin_mov;    //To determine the only valid move for the piece
+
 //structure of board and turn
 struct board{
     string board_matrix[row_size][col_size] ;
@@ -32,7 +38,7 @@ struct board{
 
 inline void display_board(const board& b);
 inline void constructor_board(board& b);
-inline void get_square(const board& b);
+inline void get_square(board& b);
 inline bool is_valid(int row,int col,const board& b);
 inline void make_move(board& b);
 inline void print_moves(vector<int> x);
@@ -84,13 +90,17 @@ int main() {
             }
             else if(k.move_list.size()==0 && checker_capturable(copy,b) == 0 && intercept(curr_king[0],curr_king[1],copy[0],copy[1],b)==0){       //intercept and capture only work when there's a single attacker
                 cout<<"Checkmate"<<endl;
-                cout<<elig_squares.size();
                 return 0;
             }
+            //Running the intercept and checker capturable again because if the king size was greater than 0 then the previous if statement skips running them
+            intercept(curr_king[0],curr_king[1],copy[0],copy[1],b);
+            checker_capturable(copy,b);
             vector <int> temp_move_list;
-            temp_move_list=k.move_list;
+            if(k.move_list.size()){
+                temp_move_list.push_back(curr_king[0]); temp_move_list.push_back(curr_king[1]);
+            }
             for(int i:elig_squares){
-                temp_move_list.push_back(i);  
+                temp_move_list.push_back(i);
             }
             for(int i:interceptors){
                 temp_move_list.push_back(i);
@@ -113,7 +123,7 @@ int main() {
                 print_moves(temp_move_list);
             }
             cor[1] = (int)inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
-            make_move(b);       //FIX ME!!! ADD FUNC TO ONLY ALLOW MOVES THAT CAN ESCAPE FROM CHECK
+            make_move(b);       //FIXME!!! ADD FUNC TO ONLY ALLOW MOVES THAT CAN ESCAPE FROM CHECK
 
         }
     }
@@ -181,3 +191,4 @@ int main() {
  * return : boolean value regarding whether the coordinate square (row,column) is in check
  * description: determines whether the passed square on board matrix will be in check from the enemy pieces
  */
+#pragma clang diagnostic pop

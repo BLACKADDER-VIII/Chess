@@ -45,15 +45,28 @@ void constructor_board(board& b){
     }
 }
 
-void get_square(const board& b){
+void get_square(board& b){
     do{
         cout<<"Enter selection square: "<<endl;
         char inp[3];
         cin>>inp;
         cor[1] = (int)inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
         if(is_pinned(cor[0],cor[1],b)){
-            cout<<"Pinned Piece"<<endl;
-            continue;
+            vector<int> temp_l = checker;
+            checker.clear();
+            b.turn = (b.turn)? 0:1;     //Changing the turn to check whether the piece that is pinning is going to be cpaturable by current player's piece
+            in_check(temp_l[0],temp_l[1],b);
+            for(int i = 0;i<checker.size();i+=2){
+                if(checker[i]==cor[0] && checker[i+1] == cor[1]){
+                    pin_sel = true; pin_mov.push_back(temp_l[0]); pin_mov.push_back(temp_l[1]);  //Storing the only valid move for the pinned piece
+                }
+            }
+            b.turn = (b.turn)? 0:1;     //Changing turn back to the original one
+            if(pin_sel==0){
+                cout<<"Piece is pinned."<<endl;
+                continue;
+            }
+            break;
         }
         char t = (b.turn)? 'b':'w';
         vector<int> temp_move_list;     //this list checks whether the selected piece has any valid moves
@@ -121,39 +134,49 @@ void make_move(board& b){
         king = 0;
         cin >> inp;
         vector<int> temp_move_list;
-        switch(b.board_matrix[cor[0]][cor[1]][0]){
-            case 'Q':{
-                Queen U_P;
-                U_P.get_moves(cor[0],cor[1],b);
-                temp_move_list = U_P.move_list;
-                break;}
-            case 'B':{
-                Bishop U_P;
-                U_P.get_moves(cor[0],cor[1],b);
-                temp_move_list = U_P.move_list;
-                break;}
-            case 'R':{
-                Rook U_P;
-                U_P.get_moves(cor[0],cor[1],b);
-                temp_move_list = U_P.move_list;
-                break;}
-            case 'P':{
-                Pawn U_P;
-                U_P.get_moves(cor[0],cor[1],b);
-                temp_move_list = U_P.move_list;
-                break;}
-            case 'N':{
-                Knight U_P;
-                U_P.get_moves(cor[0],cor[1],b);
-                temp_move_list = U_P.move_list;
-                break;}
+        if(pin_sel){
+            temp_move_list = pin_mov;
+        }
+        else {
+            switch (b.board_matrix[cor[0]][cor[1]][0]) {
+                case 'Q': {
+                    Queen U_P;
+                    U_P.get_moves(cor[0], cor[1], b);
+                    temp_move_list = U_P.move_list;
+                    break;
+                }
+                case 'B': {
+                    Bishop U_P;
+                    U_P.get_moves(cor[0], cor[1], b);
+                    temp_move_list = U_P.move_list;
+                    break;
+                }
+                case 'R': {
+                    Rook U_P;
+                    U_P.get_moves(cor[0], cor[1], b);
+                    temp_move_list = U_P.move_list;
+                    break;
+                }
+                case 'P': {
+                    Pawn U_P;
+                    U_P.get_moves(cor[0], cor[1], b);
+                    temp_move_list = U_P.move_list;
+                    break;
+                }
+                case 'N': {
+                    Knight U_P;
+                    U_P.get_moves(cor[0], cor[1], b);
+                    temp_move_list = U_P.move_list;
+                    break;
+                }
                 case 'K' : {
                     King U_P;
-                    U_P.get_moves(cor[0],cor[1],b);
+                    U_P.get_moves(cor[0], cor[1], b);
                     temp_move_list = U_P.move_list;
                     king = 1;
                     break;
                 }
+            }
         }
         int count = 0;
         for(int i = 0;i<temp_move_list.size();i++){
@@ -167,6 +190,11 @@ void make_move(board& b){
         }
         cout<<"Invalid Square, select square from valid moves list"<<endl;
         print_moves(temp_move_list);
+        cout<<"Enter destination square"<<endl;
+    }
+    if(pin_sel){        //If pinned piece conditions were used then resets them
+        pin_sel = 0;
+        pin_mov.clear();
     }
     des[1] = inp[0] - 97;
     des[0] = fabs(inp[1] - 49-7);
@@ -340,7 +368,7 @@ bool in_check(const int r,const int c,const board& b){
             cond++;
         }
     }
-    //FIXME checking for pawns
+    // CHECKING FOR PAWNS
     if(b.turn) {
         if (is_valid(r + 1, c - 1, b)) {
             if ((b.board_matrix[r + 1][c - 1][0] == 'P') && b.board_matrix[r + 1][c - 1][1] == 'w') {
@@ -353,7 +381,6 @@ bool in_check(const int r,const int c,const board& b){
             if (b.board_matrix[r + 1][c + 1][0] == 'P' && b.board_matrix[r + 1][c + 1][1] == 'w') {
                 checker.push_back(r + 1);
                 checker.push_back(c + 1);
-                cout<<"Entered"<<endl;
                 cond++;
             }
         }
@@ -388,6 +415,7 @@ bool checker_capturable(vector<int> copy,board b){
 }
 
 bool is_pinned(int row,int col,board b){
+    checker.clear();
     b.board_matrix[row][col] = "LI";
     int curr[2];
     if(b.turn){
@@ -419,7 +447,7 @@ inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME 
                     if(b.board_matrix[k_r+i-1][k_c+i]=="Pb"){
                         pawns.push_back(k_r+i-1);pawns.push_back(k_c+i);
                     }
-                    if(b.board_matrix[k_r+i-2][k_c+i]=="Pb"){
+                    if(b.board_matrix[k_r+i-2][k_c+i]=="Pb"&&k_r+i-2==1){
                         pawns.push_back(k_r+i-2);pawns.push_back(k_c+i);
                     }
                 }
@@ -427,7 +455,7 @@ inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME 
                     if(b.board_matrix[k_r+i+1][k_c+i]=="Pw"){
                         pawns.push_back(k_r+i+1);pawns.push_back(k_c+i);
                     }
-                    if(b.board_matrix[k_r+i+2][k_c+i]=="Pw"){
+                    if(b.board_matrix[k_r+i+2][k_c+i]=="Pw"&&k_r+i+2 == 6){
                         pawns.push_back(k_r+i+2);pawns.push_back(k_c+i);
                     }
                 }
@@ -439,19 +467,19 @@ inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME 
                 if(in_check(k_r+i,k_c-i,b)){
                 }
                 if(!b.turn){
-                    if(b.board_matrix[k_r+i-1][k_c+i]=="Pb"){
-                        pawns.push_back(k_r+i-1);pawns.push_back(k_c+i);
+                    if(b.board_matrix[k_r+i-1][k_c-i]=="Pb"){
+                        pawns.push_back(k_r+i-1);pawns.push_back(k_c-i);
                     }
-                    if(b.board_matrix[k_r+i-2][k_c+i]=="Pb"){
-                        pawns.push_back(k_r+i-2);pawns.push_back(k_c+i);
+                    if(b.board_matrix[k_r+i-2][k_c-i]=="Pb"&&k_r+i-2==1){
+                        pawns.push_back(k_r+i-2);pawns.push_back(k_c-i);
                     }
                 }
                 else{
-                    if(b.board_matrix[k_r+i+1][k_c+i]=="Pw"){
-                        pawns.push_back(k_r+i+1);pawns.push_back(k_c+i);
+                    if(b.board_matrix[k_r+i+1][k_c-i]=="Pw"){
+                        pawns.push_back(k_r+i+1);pawns.push_back(k_c-i);
                     }
-                    if(b.board_matrix[k_r+i+2][k_c+i]=="Pw"){
-                        pawns.push_back(k_r+i+2);pawns.push_back(k_c+i);
+                    if(b.board_matrix[k_r+i+2][k_c-i]=="Pw"&&k_r+i+2 == 6){
+                        pawns.push_back(k_r+i+2);pawns.push_back(k_c-i);
                     }
                 }
             }
@@ -465,7 +493,7 @@ inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME 
                     if(b.board_matrix[k_r-i-1][k_c+i]=="Pb"){
                         pawns.push_back(k_r-i-1);pawns.push_back(k_c+i);
                     }
-                    if(b.board_matrix[k_r-i-2][k_c+i]=="Pb"){
+                    if(b.board_matrix[k_r-i-2][k_c+i]=="Pb"&&k_r-i-2==1){
                         pawns.push_back(k_r-i-2);pawns.push_back(k_c+i);
                     }
                 }
@@ -473,7 +501,7 @@ inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME 
                     if(b.board_matrix[k_r-i+1][k_c+i]=="Pw"){
                         pawns.push_back(k_r-i+1);pawns.push_back(k_c+i);
                     }
-                    if(b.board_matrix[k_r-i+2][k_c+i]=="Pw"){
+                    if(b.board_matrix[k_r-i+2][k_c+i]=="Pw"&&k_r+i-2 == 6){
                         pawns.push_back(k_r-i+2);pawns.push_back(k_c+i);
                     }
                 }
@@ -485,19 +513,19 @@ inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME 
                 if(in_check(k_r-i,k_c-i,b)){
                 }
                 if(!b.turn){
-                    if(b.board_matrix[k_r-i-1][k_c+i]=="Pb"){
-                        pawns.push_back(k_r-i-1);pawns.push_back(k_c+i);
+                    if(b.board_matrix[k_r-i-1][k_c-i]=="Pb"){
+                        pawns.push_back(k_r-i-1);pawns.push_back(k_c-i);
                     }
-                    if(b.board_matrix[k_r-i-2][k_c+i]=="Pb"){
-                        pawns.push_back(k_r-i-2);pawns.push_back(k_c+i);
+                    if(b.board_matrix[k_r-i-2][k_c-i]=="Pb"&&k_r-i-2==1){
+                        pawns.push_back(k_r-i-2);pawns.push_back(k_c-i);
                     }
                 }
                 else{
-                    if(b.board_matrix[k_r-i+1][k_c+i]=="Pw"){
-                        pawns.push_back(k_r-i+1);pawns.push_back(k_c+i);
+                    if(b.board_matrix[k_r-i+1][k_c-i]=="Pw"){
+                        pawns.push_back(k_r-i+1);pawns.push_back(k_c-i);
                     }
-                    if(b.board_matrix[k_r-i+2][k_c+i]=="Pw"){
-                        pawns.push_back(k_r-i+2);pawns.push_back(k_c+i);
+                    if(b.board_matrix[k_r-i+2][k_c-i]=="Pw"&&k_r-i+2 == 6){
+                        pawns.push_back(k_r-i+2);pawns.push_back(k_c-i);
                     }
                 }
             }
