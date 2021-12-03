@@ -80,7 +80,7 @@ int main() {
             interceptors.clear();
             elig_squares.clear();
             in_check(curr_king[0],curr_king[1],b);
-            vector<int> copy = checker;
+            vector<int> copy = checker;     //A copy of the original checker list for this turn
             checker.clear();        //clear the vector so the next use will add the checker capturers to the list
             King k;
             k.get_moves(curr_king[0],curr_king[1],b);
@@ -99,16 +99,30 @@ int main() {
             if(k.move_list.size()){
                 temp_move_list.push_back(curr_king[0]); temp_move_list.push_back(curr_king[1]);
             }
-            for(int i:elig_squares){
-                temp_move_list.push_back(i);
+            for(int i=0;i<elig_squares.size();i+=2){
+                if(is_pinned(elig_squares[i],elig_squares[i+1],b)){
+                    if(copy==checker){      //The piece isnt actually pinned since the number of checkers wont change if that square is assumed to be vaccant
+                        temp_move_list.push_back(elig_squares[i]);
+                        temp_move_list.push_back(elig_squares[i + 1]);
+                    }
+                }
             }
-            for(int i:interceptors){
-                temp_move_list.push_back(i);
+            for(int i=0;i<interceptors.size();i+=2){
+                if(is_pinned(interceptors[i],interceptors[i+1],b)){     //Always true since king would be in check regardless of the pin
+                    if(copy==checker){
+                        temp_move_list.push_back(interceptors[i]);
+                        temp_move_list.push_back(interceptors[i + 1]);
+                    }
+                }
             }
-            char inp[3];
+            char inp[3],inp1[3];
             while(cin){
-                cout<<"King in check. Enter move"<<endl;
+                cout<<"King in check. Enter selection square: "<<endl;
                 cin>>inp;
+                if(cin.fail()){         //FIXME !!!
+                    cout<<"Error in input."<<endl;
+                    cin.clear();cin.ignore('\n');
+                }
                 int count = 0;
                 for(int i = 0;i<temp_move_list.size();i++){
                     if(fabs(inp[1]-49-7) == temp_move_list[i]&&inp[0]-97==temp_move_list[i+1]){
@@ -123,8 +137,92 @@ int main() {
                 print_moves(temp_move_list);
             }
             cor[1] = (int)inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
-            make_move(b);       //FIXME!!! ADD FUNC TO ONLY ALLOW MOVES THAT CAN ESCAPE FROM CHECK
-
+            //make_move(b);       //FIXME!!! ADD FUNC TO ONLY ALLOW MOVES THAT CAN ESCAPE FROM CHECK
+            temp_move_list.clear();  //Will now be used for making the move ie destination square
+            bool king = 0;  //To check if king was moved, if yes then his position has to be updated
+            if(b.board_matrix[cor[0]][cor[1]][0]=='K'){     //If king is selected then his moves are given
+                temp_move_list = k.move_list;
+                king = true;
+            }
+            else{
+                //To determine whether the piece can intercept or capture checker, sometimes a piece can do both
+                for(int i = 0; i<interceptors.size();i+=2){
+                    if(interceptors[i] == cor[0] && interceptors[i+1]==cor[1]){     //Piece selected has to intercept
+                        vector <int> w_mov;
+                        switch(b.board_matrix[cor[0]][cor[1]][0]){
+                            case 'Q':{
+                                Queen U_P;
+                                U_P.get_moves(cor[0],cor[1],b);
+                                w_mov = U_P.move_list;
+                                break;}
+                            case 'B':{
+                                Bishop U_P;
+                                U_P.get_moves(cor[0],cor[1],b);
+                                w_mov = U_P.move_list;
+                                break;}
+                            case 'R':{
+                                Rook U_P;
+                                U_P.get_moves(cor[0],cor[1],b);
+                                w_mov = U_P.move_list;
+                                break;}
+                            case 'P':{
+                                Pawn U_P;
+                                U_P.get_moves(cor[0],cor[1],b);
+                                w_mov = U_P.move_list;
+                                break;}
+                            case 'N':{
+                                Knight U_P;
+                                U_P.get_moves(cor[0],cor[1],b);
+                                w_mov = U_P.move_list;
+                                break;}
+                        }
+                        for(int j = 0;j<w_mov.size();j+=2){
+                            string t = b.board_matrix[w_mov[j]][w_mov[j+1]];        //Value holder for original value of the square
+                            b.board_matrix[w_mov[j]][w_mov[j+1]] = b.board_matrix[cor[0]][cor[1]];      //Putting that piece in the square
+                            if(!in_check(curr_king[0],curr_king[1],b)){     //If that move results in escaping from check
+                                temp_move_list.push_back(w_mov[j]);temp_move_list.push_back(w_mov[j+1]);
+                            }
+                            //Undoing the changing of the board matrix
+                            b.board_matrix[w_mov[j]][w_mov[j+1]] = t;
+                        }
+                    }
+                }
+                for(int i = 0;i<elig_squares.size();i+=2){
+                    if(elig_squares[i] == cor[0] && elig_squares[i+1] == cor[1]){
+                        temp_move_list = copy;
+                        break;
+                    }
+                }
+            }
+            while(cin){
+                cout<<"Enter destination square: "<<endl;
+                cin>>inp1;
+                int count = 0;
+                for(int i = 0;i<temp_move_list.size();i+=2){
+                    if(fabs(inp1[1]-49-7) == temp_move_list[i]&&inp1[0]-97==temp_move_list[i+1]){
+                        count++;
+                    }
+                }
+                if(count){
+                    break;      //breaks the while loop
+                }
+                cout<<"Invalid Square, select square from valid moves list"<<endl;
+                print_moves(temp_move_list);
+            }
+            des[1] = inp1[0] - 97;
+            des[0] = fabs(inp1[1] - 49-7);
+            if(king) {              //updating king position
+                if (b.turn) {
+                    b_k_pos[0] = des[0];
+                    b_k_pos[1] = des[1];
+                } else {
+                    w_k_pos[0] = des[0];
+                    w_k_pos[1] = des[1];
+                }
+            }
+            b.board_matrix[des[0]][des[1]] = b.board_matrix[cor[0]][cor[1]]; b.board_matrix[cor[0]][cor[1]] = "LI";
+            moves.push_back(cor[0]); moves.push_back(cor[1]); moves.push_back(des[0]); moves.push_back(des[1]);
+            b.turn = (b.turn) ? 0 : 1;
         }
     }
     return 0;

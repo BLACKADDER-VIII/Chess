@@ -50,6 +50,10 @@ void get_square(board& b){
         cout<<"Enter selection square: "<<endl;
         char inp[3];
         cin>>inp;
+        if(cin.fail()||cin.bad()){      //FIXME !!!!
+            cout<<"Error in input."<<endl;
+            cin.clear();cin.ignore('\n');
+        }
         cor[1] = (int)inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
         if(is_pinned(cor[0],cor[1],b)){
             vector<int> temp_l = checker;
@@ -133,6 +137,10 @@ void make_move(board& b){
     while(cin) {
         king = 0;
         cin >> inp;
+        if(cin.fail()){         //FIXME !!! NOT WORKING
+            cout<<"Error in input."<<endl;
+            cin.clear();cin.ignore();
+        }
         vector<int> temp_move_list;
         if(pin_sel){
             temp_move_list = pin_mov;
