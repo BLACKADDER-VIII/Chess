@@ -24,6 +24,9 @@ vector<int>elig_squares;       //A list of all the squares that can capture the 
 //COORDINATE OF CURRENT SQUARE & DESTINATION SQUARE
 int cor[2] = {0},des[2] = {0};  //format for cor -> (row,col) same for des
 
+//PROMOTION
+vector<int> prom_sq;
+
 //IF A PINNED PIECE IS SELECTED
 bool pin_sel = 0;       //If the piece is selected, (used by make_move func)
 vector<int> pin_mov;    //To determine the only valid move for the piece
@@ -47,6 +50,7 @@ inline bool in_check(int r,int c,const board& b);
 inline bool checker_capturable(vector<int> copy,board b);
 inline bool is_pinned(int row,int col,board b);
 inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b);
+inline bool promotion(const board& b);
 
 //Moves Database
 vector <int> moves;      //TO BE PRINTED AT THE END OF THE GAME
@@ -137,7 +141,7 @@ int main() {
                 print_moves(temp_move_list);
             }
             cor[1] = (int)inp[0]-97; cor[0] = fabs(inp[1] - 49-7);
-            //make_move(b);       //FIXME!!! ADD FUNC TO ONLY ALLOW MOVES THAT CAN ESCAPE FROM CHECK
+            //Making move
             temp_move_list.clear();  //Will now be used for making the move ie destination square
             bool king = 0;  //To check if king was moved, if yes then his position has to be updated
             if(b.board_matrix[cor[0]][cor[1]][0]=='K'){     //If king is selected then his moves are given
@@ -222,6 +226,16 @@ int main() {
             }
             b.board_matrix[des[0]][des[1]] = b.board_matrix[cor[0]][cor[1]]; b.board_matrix[cor[0]][cor[1]] = "LI";
             moves.push_back(cor[0]); moves.push_back(cor[1]); moves.push_back(des[0]); moves.push_back(des[1]);
+            if(promotion(b)){
+                char input;
+                cout<<"What piece would you like to promote to? \n Enter 'N' for knight, 'Q' for Queen, 'B' for Bishop & 'R' for Rook"<<endl;
+                cin>>input;
+                while(input != 'N' || input != 'R' || input!= 'Q' || input != 'B'){
+                    cout<<"Invalid piece."<<endl;
+                    cout<<"Enter 'N' for knight, 'Q' for Queen, 'B' for Bishop & 'R' for Rook"<<endl;
+                }
+                b.board_matrix[prom_sq[0]][prom_sq[1]][0] = input;
+            }
             b.turn = (b.turn) ? 0 : 1;
         }
     }

@@ -210,13 +210,25 @@ void make_move(board& b){
         if (b.turn) {
             b_k_pos[0] = des[0];
             b_k_pos[1] = des[1];
-        } else {
+        }
+        else {
             w_k_pos[0] = des[0];
             w_k_pos[1] = des[1];
         }
     }
     b.board_matrix[des[0]][des[1]] = b.board_matrix[cor[0]][cor[1]]; b.board_matrix[cor[0]][cor[1]] = "LI";
     moves.push_back(cor[0]); moves.push_back(cor[1]); moves.push_back(des[0]); moves.push_back(des[1]);
+    if(promotion(b)){
+        char input;
+        cout<<"What piece would you like to promote to? \nEnter 'N' for knight, 'Q' for Queen, 'B' for Bishop & 'R' for Rook"<<endl;
+        cin>>input;
+        while(input != 'N' && input != 'R' && input!= 'Q' && input != 'B'){
+            cout<<"Invalid piece."<<endl;
+            cout<<"Enter 'N' for knight, 'Q' for Queen, 'B' for Bishop & 'R' for Rook"<<endl;
+            cin>>input;
+        }
+        b.board_matrix[prom_sq[0]][prom_sq[1]][0] = input;
+    }
     b.turn = (b.turn) ? 0 : 1;
 }
 
@@ -438,13 +450,13 @@ bool is_pinned(int row,int col,board b){
     return false;
 }
 
-inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME !!! ADD PAWN CONDITIONS
+inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME !!! ADD PAWN CONDITIONS & KNIGHT CONDITIONS
     interceptors.clear();
     checker.clear();
     b.turn = (b.turn)? 0:1;
     vector<int> pawns;
     // For Bishop and Queen
-    if(b.board_matrix[ch_r][ch_c][0]=='B'||b.board_matrix[ch_r][ch_c][0]=='Q'){
+    if(b.board_matrix[ch_r][ch_c][0]=='B'||(b.board_matrix[ch_r][ch_c][0]=='Q'&&k_r!=ch_r&&k_c!=ch_c)){     //Last conditions added to make sure that queen is selected for diagonal check only
         //4 possible directions of attack
         if(ch_r>k_r&&ch_c>k_c){
             int diff = ch_r-k_r;
@@ -547,17 +559,51 @@ inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME 
             for(int i = 1;i<diff;i++){
                 if(in_check(k_r,k_c+i,b)){
                 }
+                //Pawns
+                if(!b.turn){
+                    if(b.board_matrix[k_r-1][k_c+i]=="Pb"){
+                        pawns.push_back(k_r-1);pawns.push_back(k_c+i);
+                    }
+                    if(b.board_matrix[k_r-2][k_c+i]=="Pb"&&k_r-2==1){
+                        pawns.push_back(k_r-2);pawns.push_back(k_c+i);
+                    }
+                }
+                else{
+                    if(b.board_matrix[k_r+1][k_c+i]=="Pw"){
+                        pawns.push_back(k_r+1);pawns.push_back(k_c+i);
+                    }
+                    if(b.board_matrix[k_r+2][k_c+i]=="Pw"&&k_r+2 == 6){
+                        pawns.push_back(k_r+2);pawns.push_back(k_c+i);
+                    }
+                }
             }
         }
         if(ch_c<k_c){
-            int diff = (ch_c-k_c)*-1;
+            int diff = k_c-ch_c;
             for(int i = 1;i<diff;i++){
                 if(in_check(k_r,k_c-i,b)){
+                }
+                //Pawns
+                if(!b.turn){
+                    if(b.board_matrix[k_r-1][k_c-i]=="Pb"){
+                        pawns.push_back(k_r-1);pawns.push_back(k_c-i);
+                    }
+                    if(b.board_matrix[k_r-2][k_c-i]=="Pb"&&k_r-2==1){
+                        pawns.push_back(k_r-2);pawns.push_back(k_c-i);
+                    }
+                }
+                else{
+                    if(b.board_matrix[k_r+1][k_c-i]=="Pw"){
+                        pawns.push_back(k_r+1);pawns.push_back(k_c-i);
+                    }
+                    if(b.board_matrix[k_r+2][k_c-i]=="Pw"&&k_r+2 == 6){
+                        pawns.push_back(k_r+2);pawns.push_back(k_c-i);
+                    }
                 }
             }
         }
         if(ch_r<k_r){
-            int diff = (ch_r-k_r)*-1;
+            int diff = k_r-ch_r;
             for(int i = 1;i<diff;i++){
                 if(in_check(k_r-i,k_c,b)){
                 }
@@ -580,4 +626,25 @@ inline bool intercept(int k_r,int k_c,int ch_r,int ch_c,board b){       //FIXME 
         interceptors.push_back(i);
     }
     return interceptors.size();
+}
+
+inline bool promotion(const board& b){
+    prom_sq.clear();
+    if(b.turn){     //Black's turn
+        for(int i = 0;i<8;i++){
+            if(b.board_matrix[7][i] == "Pb"){
+                prom_sq.push_back(7); prom_sq.push_back(i);
+                return true;
+            }
+        }
+    }
+    else{
+        for(int i = 0;i<8;i++){     //White's turn
+            if(b.board_matrix[0][i][0] == 'P'){
+                prom_sq.push_back(0); prom_sq.push_back(i);
+                return true;
+            }
+        }
+    }
+    return false;
 }
