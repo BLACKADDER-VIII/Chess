@@ -230,7 +230,7 @@ int main() {
                 char input;
                 cout<<"What piece would you like to promote to? \n Enter 'N' for knight, 'Q' for Queen, 'B' for Bishop & 'R' for Rook"<<endl;
                 cin>>input;
-                while(input != 'N' || input != 'R' || input!= 'Q' || input != 'B'){
+                while(input != 'N' && input != 'R' && input!= 'Q' && input != 'B'){
                     cout<<"Invalid piece."<<endl;
                     cout<<"Enter 'N' for knight, 'Q' for Queen, 'B' for Bishop & 'R' for Rook"<<endl;
                 }
