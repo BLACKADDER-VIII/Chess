@@ -193,7 +193,18 @@ int main() {
                 }
                 for(int i = 0;i<elig_squares.size();i+=2){
                     if(elig_squares[i] == cor[0] && elig_squares[i+1] == cor[1]){
-                        temp_move_list = copy;
+                        //checking if the move is already added to the list
+                        bool added = false;
+                        for(int l = 0;l<temp_move_list.size();l+=2){
+                            if(temp_move_list[l] == copy[0] && temp_move_list[l+1]==copy[1]){
+                                added = true;
+                                break;
+                            }
+                        }
+                        if(!added) {
+                            temp_move_list.push_back(copy[0]);
+                            temp_move_list.push_back(copy[1]);
+                        }
                         break;
                     }
                 }
@@ -228,7 +239,7 @@ int main() {
             moves.push_back(cor[0]); moves.push_back(cor[1]); moves.push_back(des[0]); moves.push_back(des[1]);
             if(promotion(b)){
                 char input;
-                cout<<"What piece would you like to promote to? \n Enter 'N' for knight, 'Q' for Queen, 'B' for Bishop & 'R' for Rook"<<endl;
+                cout<<"What piece would you like to promote to? \nEnter 'N' for knight, 'Q' for Queen, 'B' for Bishop & 'R' for Rook"<<endl;
                 cin>>input;
                 while(input != 'N' && input != 'R' && input!= 'Q' && input != 'B'){
                     cout<<"Invalid piece."<<endl;
