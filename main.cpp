@@ -73,7 +73,6 @@ int main() {
     constructor_board(b);
     int curr_king[2] = {0,0};
     while (cin) {
-        cout<<"W_k_r: "<<w_k_r<<endl;
         if (b.turn) {
             curr_king[0] = b_k_pos[0];
             curr_king[1] = b_k_pos[1];
