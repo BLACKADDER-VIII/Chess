@@ -27,6 +27,14 @@ int cor[2] = {0},des[2] = {0};  //format for cor -> (row,col) same for des
 //PROMOTION
 vector<int> prom_sq;
 
+//CASTLING
+bool w_k_c = 1; //white king castling condition
+bool b_k_c = 1; //black king castling condition
+bool w_q_r = 1; //white queen side rook castling condition
+bool w_k_r = 1; //white king side rook castling condition
+bool b_q_r = 1; //black queen side rook castling condition
+bool b_k_r = 1; //black king side rook castling condition
+
 //IF A PINNED PIECE IS SELECTED
 bool pin_sel = 0;       //If the piece is selected, (used by make_move func)
 vector<int> pin_mov;    //To determine the only valid move for the piece
@@ -65,13 +73,34 @@ int main() {
     constructor_board(b);
     int curr_king[2] = {0,0};
     while (cin) {
+        cout<<"W_k_r: "<<w_k_r<<endl;
         if (b.turn) {
             curr_king[0] = b_k_pos[0];
             curr_king[1] = b_k_pos[1];
+            if(cor[0] == 7 && cor[1] == 0){
+                if(b.board_matrix[des[0]][des[1]][0]=='R'){
+                    w_q_r = 0;
+                }
+            }
+            if(cor[0] == 7 && cor[1] == 7){
+                if(b.board_matrix[des[0]][des[1]][0]=='R'){
+                    w_k_r = 0;
+                }
+            }
         }
         else {
             curr_king[0] = w_k_pos[0];
             curr_king[1] = w_k_pos[1];
+            if(cor[0] == 0 && cor[1] == 0){
+                if(b.board_matrix[des[0]][des[1]][0]=='R'){
+                    b_q_r = 0;
+                }
+            }
+            if(cor[0] == 0 && cor[1] == 7){
+                if(b.board_matrix[des[0]][des[1]][0]=='R'){
+                    b_k_r = 0;
+                }
+            }
         }
         display_board(b);
         if(!in_check(curr_king[0],curr_king[1],b)){
@@ -230,9 +259,11 @@ int main() {
                 if (b.turn) {
                     b_k_pos[0] = des[0];
                     b_k_pos[1] = des[1];
+                    b_k_c = 0;  //black king can't castle anymore
                 } else {
                     w_k_pos[0] = des[0];
                     w_k_pos[1] = des[1];
+                    w_k_c = 0;  //white king can't castle anymore
                 }
             }
             b.board_matrix[des[0]][des[1]] = b.board_matrix[cor[0]][cor[1]]; b.board_matrix[cor[0]][cor[1]] = "LI";

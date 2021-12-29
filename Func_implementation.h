@@ -58,7 +58,7 @@ void get_square(board& b){
         if(is_pinned(cor[0],cor[1],b)){
             vector<int> temp_l = checker;
             checker.clear();
-            b.turn = (b.turn)? 0:1;     //Changing the turn to check whether the piece that is pinning is going to be cpaturable by current player's piece
+            b.turn = (b.turn)? 0:1;     //Changing the turn to check whether the piece that is pinning is going to be capturable by current player's piece
             in_check(temp_l[0],temp_l[1],b);
             for(int i = 0;i<checker.size();i+=2){
                 if(checker[i]==cor[0] && checker[i+1] == cor[1]){
@@ -134,6 +134,7 @@ void make_move(board& b){
     cout<<"Enter destination square"<<endl;
     char inp[3];
     bool king;
+    vector<int> castle;
     while(cin) {
         king = 0;
         cin >> inp;
@@ -186,6 +187,49 @@ void make_move(board& b){
                 }
             }
         }
+        //Adding castling
+        if(king){
+            if(b.turn){ //black's turn
+                if(b_k_c){
+                    if(b_k_r){
+                        if(b.board_matrix[0][6] == "LI"&& b.board_matrix[0][5]=="LI"&& !in_check(0,6,b) && !in_check(0,5,b)) {
+                            temp_move_list.push_back(0);
+                            temp_move_list.push_back(6);
+                            castle.push_back(0);
+                            castle.push_back(6);
+                        }
+                    }
+                    if(b_q_r){
+                        if(b.board_matrix[0][1] == "LI"&& b.board_matrix[0][2]=="LI"&& b.board_matrix[0][3] == "LI"&& !in_check(0,1,b) && !in_check(0,2,b) && !in_check(0,3,b)) {
+                            temp_move_list.push_back(0);
+                            temp_move_list.push_back(2);
+                            castle.push_back(0);
+                            castle.push_back(2);
+                        }
+                    }
+                }
+            }
+            else{   //white's move
+                if(w_k_c){
+                    if(w_k_r){
+                        if(b.board_matrix[7][6] == "LI"&& b.board_matrix[7][5]=="LI"&& !in_check(7,6,b) && !in_check(7,5,b)) {
+                            temp_move_list.push_back(7);
+                            temp_move_list.push_back(6);
+                            castle.push_back(7);
+                            castle.push_back(6);
+                        }
+                    }
+                    if(w_q_r){
+                        if(b.board_matrix[7][1] == "LI"&& b.board_matrix[7][2]=="LI"&& b.board_matrix[7][3] == "LI" && !in_check(7,1,b) && !in_check(7,2,b) && !in_check(7,3,b)) {
+                            temp_move_list.push_back(7);
+                            temp_move_list.push_back(2);
+                            castle.push_back(7);
+                            castle.push_back(2);
+                        }
+                    }
+                }
+            }
+        }
         int count = 0;
         for(int i = 0;i<temp_move_list.size();i++){
             if(fabs(inp[1]-49-7) == temp_move_list[i]&&inp[0]-97==temp_move_list[i+1]){
@@ -203,6 +247,24 @@ void make_move(board& b){
     if(pin_sel){        //If pinned piece conditions were used then resets them
         pin_sel = 0;
         pin_mov.clear();
+    }
+    if(castle.size()){
+        if(castle[0] == 0 && castle[1] == 6){
+            b.board_matrix[0][7] = "LI";
+            b.board_matrix[0][5] = "Rb";
+        }
+        if(castle[0] == 0 && castle[1] == 2){
+            b.board_matrix[0][0] = "LI";
+            b.board_matrix[0][3] = "Rb";
+        }
+        if(castle[0] == 7 && castle[1] == 6){
+            b.board_matrix[7][7] = "LI";
+            b.board_matrix[7][5] = "Rw";
+        }
+        if(castle[0] == 7 && castle[1] == 2){
+            b.board_matrix[7][0] = "LI";
+            b.board_matrix[7][3] = "Rw";
+        }
     }
     des[1] = inp[0] - 97;
     des[0] = fabs(inp[1] - 49-7);
